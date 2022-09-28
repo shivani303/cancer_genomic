@@ -52,7 +52,6 @@ library(ComplexHeatmap)
 library(circlize)
 h1= Heatmap(mat1,col= colorRamp2(c(-2,0,2),c("green","white","yellow")))
 
-#HEATMAP
 
 
 
