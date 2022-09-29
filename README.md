@@ -89,3 +89,72 @@ library(circlize)
 
 h1= Heatmap(mat1,col= colorRamp2(c(-2,0,2),c("green","white","yellow")))
 ![image](https://user-images.githubusercontent.com/66779651/193064700-09b56a4f-a418-44b7-a78d-4b31cbc8c1ca.png)
+
+# DIFFERENTIAL GENE EXPRESSION 
+# T_TEST
+
+**read previous log file**
+
+data1= readRDS("log.RDS")
+
+**creating empty matrix with 4 columns**
+
+mat= matrix(NA,ncol=4,nrow=nrow(data1))
+rownames(mat)=rownames(data1)
+colnames(mat)= c("control","test","pval","logfc2")
+
+**round off data to 4th decimal postion**
+
+data2 = round(data1, 4)
+
+**divide data itno control and test** 
+
+for (i in 1:nrow(data2)){
+  cdata = as.numeric(data2[i, 1:3]) 
+  tdata = as.numeric(data2[i, 4:19])
+  
+  if(length(unique(cdata))==1){
+    next
+  }
+  
+  if(length(unique(tdata))==1){
+    next
+  }
+  t= t.test(cdata,tdata,paired = F,alternative = 'two.sided')
+  mat[i,1]= t$estimate[[1]]
+  mat[i,2]= t$estimate[[2]]
+  mat[i,3]= t$p.value
+  mat[i,4]= mat[i,1]- mat[i,2]
+}
+
+# volcano plot
+
+**installing package**
+
+if (!require("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+
+BiocManager::install("EnhancedVolcano")
+
+**calling library**
+
+library(EnhancedVolcano)
+
+library(ggplot2)
+
+library(ggrepel)
+
+mat= as.data.frame(mat)
+
+**changing NA values in p_values to 1**
+
+num= which(is.na(mat$pval))
+num
+
+mat[num,'pval']= 1
+
+**ploting**
+
+EnhancedVolcano(mat,lab=rownames(mat),x='logfc2',y='pval')
+
+![image](https://user-images.githubusercontent.com/66779651/193067461-24dafa70-8872-4a8b-b2bd-bf1dbe5f2568.png)
