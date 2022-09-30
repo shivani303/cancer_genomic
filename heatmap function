@@ -1,0 +1,42 @@
+data= read.csv("C:/Users/shiva/Desktop/shivani college/rgitbt/cancer genomics/leukemia.csv")
+data
+dim(data)
+countdata <- data[,-1]
+countdata[,20] = NULL
+head(countdata)
+
+# Store Genename as rownames
+rownames(countdata) <- data[,1]
+head(countdata)
+
+#user-defined function to return log_cpm value
+
+log_cpm= function(data){
+  mat=data
+  rownames(mat)=rownames(data)
+  for(i in 1:ncol(data)){
+    mat[,i]= (data[,i]/sum(data[,i]))*1000000
+  }
+  l2cpm= log2(mat+1)
+  return(l2cpm)
+  
+}
+
+**INPUT DATA**
+
+log_Data=log_cpm(countdata) *FUNCTION 1 AS INPUT*
+
+vec= c("A1BG","A2ML1","ABCA13")
+hm_f= function(log_Data,vec){
+  data=log_Data[vec,]
+  mat= as.matrix(data)
+  for(i in 1:nrow(mat)){
+    vec1= as.numeric(mat[i,])
+    
+    mat[i, 1:ncol(mat)] = (vec1-mean(vec1))/sd(vec1)
+  }
+  library(ComplexHeatmap)
+  library(circlize)
+  return(Heatmap(mat))
+}
+hm_f(log_Data,vec)
